@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mysat/PagePosition.dart';
 import 'package:http/http.dart' as http;
+import 'package:mysat/PageLogin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //import 'PageLogin.dart';
 // ignore_for_file: prefer_const_constructors
@@ -17,6 +18,25 @@ class PageUtama extends StatefulWidget {
 class _PageUtamaState extends State<PageUtama> {
   Position? _currentPosition;
   late final String posisiokjos;
+  String email = "";
+  getPref() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var islogin = pref.getBool("is_login");
+    if (islogin != null && islogin == true) {
+      setState(() {
+        email = pref.getString("email")!;
+      });
+    } else {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => PageLogin(),
+        ),
+        (route) => false,
+      );
+    }
+  }
 
   void ambilData() {
     //data = MuridService().getMurid();
@@ -35,6 +55,8 @@ class _PageUtamaState extends State<PageUtama> {
   //initState adalah sebuah fungsi yang dibaca pertama kali
   void initState() {
     ambilData();
+    print("AAA");
+    print(email);
     super.initState();
   }
 
@@ -66,6 +88,8 @@ class _PageUtamaState extends State<PageUtama> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text("email: "+ email),
+            //Text(pref.getString("email")),
             /*
             Text("LAT: ${_currentPosition!.latitude}, LNG: ${_currentPosition!.longitude}"),
            
@@ -87,16 +111,4 @@ class _PageUtamaState extends State<PageUtama> {
     );
   }
 
-  _getCurrentLocation() {
-    Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.best,
-            forceAndroidLocationManager: true)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
 }
